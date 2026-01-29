@@ -3,145 +3,175 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Whoop 模拟器 </title>
+    <title>Whoop 成本模拟器 - 全员混战版</title>
     <style>
-        :root { --whoop-red: #ff3b30; --bg: #0a0a0a; }
+        :root { --whoop-red: #ff3b30; --bg: #000; --gold: #ff9f0a; }
         body { font-family: -apple-system, sans-serif; background: var(--bg); color: #fff; margin: 0; padding: 20px; display: flex; justify-content: center; }
-        .container { width: 100%; max-width: 400px; background: #1c1c1e; border-radius: 20px; padding: 25px; box-shadow: 0 10px 30px rgba(0,0,0,0.5); }
-        h1 { font-size: 22px; text-align: center; margin-bottom: 5px; }
-        .sub { font-size: 12px; color: #888; text-align: center; margin-bottom: 30px; }
+        .container { width: 100%; max-width: 420px; background: #1a1a1c; border-radius: 24px; padding: 25px; border: 1px solid #333; }
         
-        .input-box { background: #2c2c2e; padding: 15px; border-radius: 12px; margin-bottom: 20px; }
-        label { font-size: 12px; color: #8e8e93; display: block; margin-bottom: 5px; }
-        input { width: 100%; background: transparent; border: none; color: white; font-size: 24px; font-weight: bold; outline: none; }
-        
-        .btn-pay { width: 100%; background: white; color: black; border: none; padding: 18px; border-radius: 14px; font-size: 17px; font-weight: 600; cursor: pointer; }
-        
-        /* 支付弹窗 */
-        #apple-pay { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.9); z-index: 1000; align-items: center; justify-content: center; }
-        .sheet { background: #fff; color: #000; width: 85%; border-radius: 15px; padding: 20px; position: relative; }
-        .faceid-anim { width: 50px; height: 50px; border: 3px solid #007aff; margin: 20px auto; border-radius: 12px; display: flex; align-items: center; justify-content: center; animation: pulse 1.5s infinite; }
-        @keyframes pulse { 0% { opacity: 1; } 50% { opacity: 0.3; } 100% { opacity: 1; } }
+        /* 1. 货币选择 */
+        #currency-screen { text-align: center; padding: 40px 0; }
+        .currency-btn { width: 100%; padding: 18px; margin: 12px 0; background: #2c2c2e; border: 1px solid #444; border-radius: 14px; color: white; font-size: 16px; cursor: pointer; }
+        .currency-btn:hover { background: #fff; color: #000; }
 
-        /* 结果展示 */
+        /* 2. 主页面 */
+        #main-ui { display: none; }
+        .info-card { background: rgba(255,59,48,0.1); border: 1px solid rgba(255,59,48,0.3); padding: 15px; border-radius: 12px; margin-bottom: 25px; font-size: 13px; color: var(--whoop-red); text-align: center; }
+        
+        .input-box { background: #2c2c2e; padding: 15px; border-radius: 14px; margin-bottom: 15px; }
+        label { font-size: 11px; color: #8e8e93; display: block; margin-bottom: 5px; }
+        input { width: 100%; background: transparent; border: none; color: #fff; font-size: 24px; font-weight: bold; outline: none; }
+        
+        .ship-pre { font-size: 12px; color: var(--gold); background: rgba(255,159,10,0.1); padding: 12px; border-radius: 10px; margin-bottom: 25px; }
+
+        .btn-pay { width: 100%; background: #fff; color: #000; border: none; padding: 20px; border-radius: 16px; font-size: 16px; font-weight: bold; cursor: pointer; }
+
+        /* 3. 结果页 */
         #results { display: none; }
-        .res-item { padding: 12px; border-bottom: 1px solid #2c2c2e; font-size: 14px; }
-        .hit { color: #34c759; font-weight: bold; background: rgba(52, 199, 89, 0.1); border-radius: 8px; }
-        .miss { color: #8e8e93; }
-        .summary { margin-top: 20px; padding: 15px; background: #000; border-radius: 12px; border: 1px solid var(--whoop-red); }
+        .hit-item { background: linear-gradient(90deg, #333, #1a1a1c); border-left: 4px solid var(--whoop-red); padding: 15px; border-radius: 8px; margin-bottom: 10px; }
+        .miss-text { color: #444; font-size: 12px; padding: 4px 0; border-bottom: 1px solid #222; }
+        .bill-zone { background: #000; padding: 20px; border-radius: 20px; margin-top: 25px; border: 1px solid #333; }
+        .bill-line { display: flex; justify-content: space-between; margin-bottom: 8px; font-size: 14px; }
+
+        /* Apple Pay */
+        #apple-pay { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.9); z-index: 1000; align-items: flex-end; }
+        .pay-sheet { background: white; color: black; width: 100%; border-top-left-radius: 25px; border-top-right-radius: 25px; padding: 30px; box-sizing: border-box; }
     </style>
 </head>
 <body>
 
-<div class="container" id="main-ui">
-    <h1>Whoop 抽选模拟</h1>
-    <p class="sub">成员随机 | 项目随机 | 无法指定</p>
-    
-    <div class="input-box">
-        <label>购买张数 (¥3,300/张)</label>
-        <input type="number" id="count" value="10">
+<div class="container">
+    <div id="currency-screen">
+        <h2 style="margin-bottom:5px;">Whoop Simulator</h2>
+        <p style="color:#666; font-size:12px; margin-bottom:30px;">随机混战模式 - 成本估算</p>
+        <button class="currency-btn" onclick="initApp('CNY', 0.048, '￥')">人民币 (CNY)</button>
+        <button class="currency-btn" onclick="initApp('HKD', 0.052, 'HK$')">港币 (HKD)</button>
+        <button class="currency-btn" onclick="initApp('TWD', 0.22, 'NT$')">新台币 (TWD)</button>
     </div>
-    
-    <button class="btn-pay" onclick="openPay()">确认支付</button>
-    
-    <div id="stats" style="margin-top:25px; font-size:12px; color:#555; text-align:center;"></div>
-</div>
 
-<div id="results" class="container">
-    <h2 style="text-align:center">抽选结果</h2>
-    <div id="list-box"></div>
-    <div class="summary" id="sum-box"></div>
-    <button class="btn-pay" style="margin-top:20px" onclick="location.reload()">不服，再来！</button>
+    <div id="main-ui">
+        <div class="info-card">
+            ⚠️ 当前模式：全员混战 (Random All)<br>
+            成员与活动均为随机分配，不可指定。
+        </div>
+
+        <div class="input-box">
+            <label>购买张数 (0.72kg/张)</label>
+            <input type="number" id="qty" value="10" oninput="calcShip()">
+        </div>
+
+        <div class="ship-pre" id="ship-pre">
+            预估重量：7.20 kg
+        </div>
+
+        <button class="btn-pay" onclick="showApplePay()">确认支付并抽选</button>
+    </div>
+
+    <div id="results">
+        <h3 style="text-align:center;">抽选结果报告</h3>
+        <div id="log-content" style="max-height: 250px; overflow-y: auto; margin-bottom:20px;"></div>
+        
+        <div class="bill-zone">
+            <div style="font-size:11px; color:#666; margin-bottom:12px;">结算单明细 (LOGISTICS & CD)</div>
+            <div class="bill-line"><span>CD 费用合计</span><span id="res-cd"></span></div>
+            <div class="bill-line"><span>国际转运费</span><span id="res-ship"></span></div>
+            <div class="bill-line" style="margin-top:15px; font-weight:bold; font-size:18px; color:var(--whoop-red);">
+                <span>支付总额</span><span id="res-total"></span>
+            </div>
+            <div style="font-size:11px; color:#444; margin-top:15px; text-align:center; border-top:1px solid #222; padding-top:10px;">
+                包含：包裹重量 <span id="res-weight"></span> kg
+            </div>
+        </div>
+        
+        <button class="btn-pay" style="margin-top:20px; background:#333; color:#fff;" onclick="location.reload()">重新模拟</button>
+    </div>
 </div>
 
 <div id="apple-pay">
-    <div class="sheet">
-        <div style="text-align:center; font-weight:600;"> Pay</div>
-        <p style="text-align:center; color:#888; font-size:13px; margin:10px 0;">付款给 Whoop Japan</p>
-        <p style="text-align:center; font-size:28px; font-weight:bold;" id="pay-total"></p>
-        <div class="faceid-anim" onclick="doDraw()">确认</div>
-        <p style="text-align:center; font-size:12px; color:#007aff;" onclick="closePay()">取消</p>
+    <div class="pay-sheet">
+        <div style="text-align:center; font-weight:bold; margin-bottom:20px;"> Pay</div>
+        <div style="display:flex; justify-content:space-between; margin-bottom:15px; font-size:14px;">
+            <span>收款方</span><span>Whoop JP Event</span>
+        </div>
+        <div style="display:flex; justify-content:space-between; margin-bottom:25px; font-size:18px; font-weight:bold;">
+            <span>总计</span><span id="apple-total"></span>
+        </div>
+        <div style="width:50px; height:50px; border:2px solid #007aff; border-radius:12px; margin:20px auto; display:flex; align-items:center; justify-content:center; color:#007aff; font-weight:bold; cursor:pointer;" onclick="runLottery()">确认</div>
+        <div style="text-align:center; color:#007aff; font-size:13px;" onclick="hideApplePay()">取消</div>
     </div>
 </div>
 
 <script>
+    let rate = 0; let sign = "";
     const members = ["JACOB", "YOUNGHOON", "HYUNJAE", "JUYEON", "KEVIN", "NEW", "Q", "SUNWOO", "ERIC"];
-    
-    // --- 在这里调整概率 (0.01 = 1%) ---
-    const prizePool = [
-        { name: "双人合影", prob: 0.005 }, // 0.5% (极难)
-        { name: "个人签名", prob: 0.015 }, // 1.5%
-        { name: "个人手渡", prob: 0.040 }, // 4%
-        { name: "拍手/Hi-Touch", prob: 0.080 } // 8%
+    const prizes = [
+        { name: "双人合影", prob: 0.001 }, 
+        { name: "个人签名", prob: 0.004 }, 
+        { name: "个人手渡", prob: 0.012 }, 
+        { name: "拍手会",   prob: 0.030 }
     ];
-    // ---------------------------------
 
-    let totalSpent = 0;
-    let totalWon = 0;
+    function initApp(cur, r, s) {
+        rate = r; sign = s;
+        document.getElementById('currency-screen').style.display = 'none';
+        document.getElementById('main-ui').style.display = 'block';
+        calcShip();
+    }
 
-    function openPay() {
-        const qty = document.getElementById('count').value;
-        document.getElementById('pay-total').innerText = `¥${(qty * 3300).toLocaleString()}`;
+    function calcShip() {
+        const q = document.getElementById('qty').value || 0;
+        const w = (q * 0.72).toFixed(2);
+        document.getElementById('ship-pre').innerText = `预估重量：${w} kg`;
+    }
+
+    function showApplePay() {
+        const q = parseInt(document.getElementById('qty').value);
+        const w = q * 0.72;
+        const sJpy = q > 0 ? (3100 + (Math.max(0, Math.ceil(w)-1) * 1150)) : 0;
+        const tJpy = (q * 3300) + sJpy;
+        document.getElementById('apple-total').innerText = `${sign}${(tJpy * rate).toLocaleString()}`;
         document.getElementById('apple-pay').style.display = 'flex';
     }
 
-    function closePay() { document.getElementById('apple-pay').style.display = 'none'; }
+    function hideApplePay() { document.getElementById('apple-pay').style.display = 'none'; }
 
-    function doDraw() {
-        closePay();
-        const qty = parseInt(document.getElementById('count').value);
-        totalSpent += qty * 3300;
-        
+    function runLottery() {
+        hideApplePay();
         document.getElementById('main-ui').style.display = 'none';
         document.getElementById('results').style.display = 'block';
-        
-        const listBox = document.getElementById('list-box');
-        listBox.innerHTML = "";
-        let winCount = 0;
 
-        for (let i = 1; i <= qty; i++) {
+        const q = parseInt(document.getElementById('qty').value);
+        const log = document.getElementById('log-content');
+        log.innerHTML = "";
+        let wins = 0;
+
+        for (let i = 1; i <= q; i++) {
             let rand = Math.random();
-            let won = null;
-            let current = 0;
-
-            for (let p of prizePool) {
-                if (rand < p.prob) {
-                    won = p;
-                    break;
-                }
-            }
-
-            const div = document.createElement('div');
-            div.className = 'res-item';
+            let won = prizes.find(p => rand < p.prob);
             if (won) {
-                winCount++;
-                totalWon++;
+                wins++;
                 const m = members[Math.floor(Math.random() * members.length)];
-                div.innerHTML = `<span class="hit">★ [${m}] ${won.name} 中选！</span>`;
-            } else {
-                div.innerHTML = `<span class="miss">第 ${i} 张：落选 (落选)</span>`;
+                log.innerHTML += `<div class="hit-item">
+                    <div style="font-size:11px; color:#888;">第 ${i} 张中选</div>
+                    <div style="font-weight:bold;">${m} - ${won.name}</div>
+                </div>`;
+            } else if (q <= 10) {
+                log.innerHTML += `<div class="miss-text">第 ${i} 张：落选 (未中奖)</div>`;
             }
-            
-            if (qty <= 15 || won) listBox.appendChild(div);
         }
+        if (q > 10) log.innerHTML += `<div style="text-align:center; color:#444; font-size:12px; margin:10px 0;">... 其余均未中选 ...</div>`;
 
-        if (qty > 15) {
-            const more = document.createElement('div');
-            more.className = 'res-item miss';
-            more.style.textAlign = 'center';
-            more.innerText = `... 其余未中选结果已折叠 ...`;
-            listBox.appendChild(more);
-        }
+        // 最终账单
+        const weight = (q * 0.72).toFixed(2);
+        const cdJpy = q * 3300;
+        const shipJpy = q > 0 ? (3100 + (Math.max(0, Math.ceil(weight)-1) * 1150)) : 0;
+        const totalJpy = cdJpy + shipJpy;
 
-        document.getElementById('sum-box').innerHTML = `
-            <div style="font-size:14px; color:#ff4757;">本次购买：${qty}张，中选：${winCount}</div>
-            <div style="font-size:12px; color:#888; margin-top:8px;">
-                累计花费：¥${totalSpent.toLocaleString()}<br>
-                累计中选：${totalWon} (包含所有项目)
-            </div>
-        `;
+        document.getElementById('res-cd').innerText = `${sign}${(cdJpy * rate).toFixed(2)}`;
+        document.getElementById('res-ship').innerText = `${sign}${(shipJpy * rate).toFixed(2)}`;
+        document.getElementById('res-total').innerText = `${sign}${(totalJpy * rate).toLocaleString()}`;
+        document.getElementById('res-weight').innerText = weight;
     }
 </script>
-
 </body>
 </html>
