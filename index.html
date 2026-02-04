@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Whoop 模拟器 (2026 劝退版)</title>
+    <title>Whoop 模拟器 </title>
     <style>
         :root { --red: #ff3b30; --gold: #ff9f0a; --bg: #000; }
         body { font-family: -apple-system, BlinkMacSystemFont, sans-serif; background: var(--bg); color: #fff; margin: 0; padding: 20px; display: flex; justify-content: center; }
@@ -225,32 +225,12 @@
                     <div class="avatar">${speaker[0]}</div>
                     <div>
                         <div class="bubble-name">${speaker} 发来一条消息:</div>
-                        <div class="bubble-content">“宝，省点钱给自己买件漂亮衣服吧，别抽了。”</div>
+                        <div class="bubble-content">“省点钱给自己买点好吃的吧，别赌了。”</div>
                     </div>
                 </div>
             `;
         }
 
-        // 生成账单 + ★ Level 3 防伪印章
-        const costs = getCosts(q);
-        document.getElementById('bill-content').innerHTML = `
-            <div style="display:flex; justify-content:space-between; margin-bottom:8px; font-size:13px; color:#ccc;">
-                <span>CD 总额</span><span>${curSign}${(costs.cd * curRate).toFixed(2)}</span>
-            </div>
-            <div style="display:flex; justify-content:space-between; margin-bottom:8px; font-size:13px; color:#ccc;">
-                <span>国际运费 (${costs.w.toFixed(1)}kg)</span><span>${curSign}${(costs.ship * curRate).toFixed(2)}</span>
-            </div>
-            <div style="border-top:1px solid #333; margin:10px 0;"></div>
-            <div style="display:flex; justify-content:space-between; font-size:18px; font-weight:bold; color:var(--red);">
-                <span>实付总计</span><span>${curSign}${(costs.total * curRate).toLocaleString()}</span>
-            </div>
-            
-            <div class="fake-stamp">
-                SIMULATION ONLY<br>
-                <span style="font-size:10px; letter-spacing:1px;">虚拟模拟 仅供娱乐</span>
-            </div>
-        `;
-    }
 </script>
 </body>
 </html>
