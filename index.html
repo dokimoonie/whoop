@@ -3,75 +3,72 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Whoop 模拟器 </title>
+    <title>Whoop Japan Event Simulator</title>
     <style>
-        :root { --red: #ff3b30; --gold: #ff9f0a; --bg: #000; }
-        body { font-family: -apple-system, BlinkMacSystemFont, sans-serif; background: var(--bg); color: #fff; margin: 0; padding: 20px; display: flex; justify-content: center; }
-        .container { width: 100%; max-width: 420px; background: #1c1c1e; border-radius: 24px; padding: 25px; border: 1px solid #333; position: relative; min-height: 80vh; }
+        :root { --red: #ff3b30; --bg: #000; --gold: #ff9f0a; }
+        body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; background: var(--bg); color: #fff; margin: 0; padding: 20px; display: flex; justify-content: center; }
+        .container { width: 100%; max-width: 420px; background: #1c1c1e; border-radius: 24px; padding: 25px; border: 1px solid #333; position: relative; min-height: 80vh; box-shadow: 0 10px 40px rgba(0,0,0,0.5); }
         
-        /* 1. 货币选择 */
-        #currency-screen { text-align: center; padding-top: 50px; }
-        .currency-btn { width: 100%; padding: 18px; margin: 10px 0; background: #2c2c2e; border: 1px solid #444; border-radius: 12px; color: white; font-size: 16px; cursor: pointer; transition: 0.2s; }
+        /* 货币选择 */
+        #currency-screen { text-align: center; padding-top: 60px; }
+        .currency-btn { width: 100%; padding: 18px; margin: 12px 0; background: #2c2c2e; border: 1px solid #444; border-radius: 14px; color: white; font-size: 16px; cursor: pointer; transition: 0.2s; }
         .currency-btn:hover { background: #fff; color: #000; }
 
-        /* 2. 模式切换 & 输入 */
-        .mode-switch { display: flex; gap: 10px; margin-bottom: 20px; }
-        .mode-btn { flex: 1; padding: 12px; background: #2c2c2e; border: 1px solid #444; color: #666; border-radius: 10px; cursor: pointer; font-size: 13px; font-weight: bold; }
-        .mode-btn.active { border-color: var(--red); color: var(--red); background: rgba(255,59,48,0.1); }
+        /* 模式切换 */
+        .mode-switch { display: flex; gap: 10px; margin-bottom: 25px; }
+        .mode-btn { flex: 1; padding: 12px; background: #2c2c2e; border: 1px solid #444; color: #666; border-radius: 10px; cursor: pointer; text-align: center; font-size: 13px; font-weight: 600; transition: 0.2s; }
+        .mode-btn.active { border-color: var(--red); color: var(--red); background: rgba(255,59,48,0.15); }
 
-        .member-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; margin-bottom: 20px; transition: opacity 0.3s; }
-        .m-btn { background: #2c2c2e; border: 1px solid #333; color: #aaa; padding: 10px; border-radius: 8px; font-size: 11px; cursor: pointer; }
-        .m-btn.active { background: #fff; color: #000; font-weight: bold; }
+        /* 成员列表 */
+        .member-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; margin-bottom: 20px; }
+        .m-btn { background: #2c2c2e; border: 1px solid #333; color: #aaa; padding: 10px; border-radius: 8px; font-size: 11px; cursor: pointer; text-align: center; transition: 0.2s; }
+        .m-btn.active { background: #fff; color: #000; font-weight: bold; transform: scale(1.02); }
 
-        .input-box { background: #2c2c2e; padding: 15px; border-radius: 14px; margin-bottom: 15px; }
-        label { font-size: 11px; color: #8e8e93; display: block; margin-bottom: 5px; }
-        input { width: 100%; background: transparent; border: none; color: #fff; font-size: 24px; font-weight: bold; outline: none; }
+        /* 输入与预览 */
+        .input-box { background: #2c2c2e; padding: 15px; border-radius: 14px; margin-bottom: 15px; border: 1px solid #333; }
+        label { font-size: 11px; color: #8e8e93; display: block; margin-bottom: 5px; text-transform: uppercase; letter-spacing: 0.5px; }
+        input { width: 100%; background: transparent; border: none; color: #fff; font-size: 26px; font-weight: bold; outline: none; font-family: monospace; }
         
-        .ship-pre { font-size: 12px; color: var(--gold); background: rgba(255,159,10,0.1); padding: 10px; border-radius: 8px; margin-bottom: 20px; display: flex; justify-content: space-between; }
+        .ship-pre { font-size: 13px; color: var(--gold); background: rgba(255,159,10,0.1); padding: 12px 15px; border-radius: 10px; margin-bottom: 20px; display: flex; justify-content: space-between; align-items: center; }
 
-        .btn-pay { width: 100%; background: var(--red); color: white; border: none; padding: 18px; border-radius: 14px; font-size: 16px; font-weight: bold; cursor: pointer; }
+        .btn-pay { width: 100%; background: var(--red); color: white; border: none; padding: 18px; border-radius: 14px; font-size: 16px; font-weight: bold; cursor: pointer; transition: 0.2s; }
+        .btn-pay:active { transform: scale(0.98); opacity: 0.9; }
+
+        /* 结果区域 */
+        #results { display: none; animation: fadeIn 0.3s ease; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
         
-        /* 3. 结果展示区 */
-        #results { display: none; }
-        .log-area { max-height: 300px; overflow-y: auto; margin-bottom: 20px; padding-right: 5px; }
-        .hit { background: #fff; color: #000; padding: 10px; border-radius: 8px; margin-bottom: 8px; font-weight: bold; font-size: 13px; border-left: 5px solid var(--red); }
-        .miss { color: #555; font-size: 12px; padding: 5px 0; border-bottom: 1px solid #222; }
-
         /* 吐槽气泡 */
-        .roast-bubble { background: #2c2c2e; padding: 15px; border-radius: 12px; margin-bottom: 20px; display: flex; gap: 12px; align-items: flex-start; border: 1px solid #444; animation: popIn 0.5s ease; }
-        .avatar { width: 40px; height: 40px; background: #555; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: bold; font-size: 14px; color: #ccc; flex-shrink: 0; }
-        .bubble-content { font-size: 14px; line-height: 1.4; color: #ddd; }
-        .bubble-name { font-size: 11px; color: #888; margin-bottom: 4px; }
-        @keyframes popIn { from { opacity: 0; transform: translateY(-10px); } to { opacity: 1; transform: translateY(0); } }
+        .roast-bubble { background: #2c2c2e; padding: 15px; border-radius: 16px; margin-bottom: 20px; display: flex; gap: 15px; align-items: flex-start; border: 1px solid #444; animation: popIn 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275); box-shadow: 0 4px 20px rgba(0,0,0,0.4); }
+        .avatar-img { width: 48px; height: 48px; border-radius: 50%; object-fit: cover; object-position: top; border: 2px solid var(--red); flex-shrink: 0; background: #444; }
+        .bubble-content { font-size: 14px; line-height: 1.5; color: #eee; }
+        .bubble-name { font-size: 12px; color: #999; margin-bottom: 4px; font-weight: bold; }
+        @keyframes popIn { from { opacity: 0; transform: scale(0.9); } to { opacity: 1; transform: scale(1); } }
 
-        /* 账单卡片 & 防伪印章 */
-        .bill-card { background: #000; padding: 20px; border-radius: 16px; border: 1px solid #333; position: relative; overflow: hidden; }
-        .fake-stamp {
-            position: absolute; top: 50%; left: 50%;
-            transform: translate(-50%, -50%) rotate(-20deg);
-            border: 4px solid rgba(255, 59, 48, 0.5);
-            color: rgba(255, 59, 48, 0.5);
-            font-size: 20px; font-weight: 900;
-            padding: 15px; text-align: center;
-            border-radius: 12px; pointer-events: none;
-            z-index: 10;
-            background: rgba(0,0,0,0.6);
-            backdrop-filter: blur(2px);
-            white-space: nowrap;
-        }
+        .log-area { max-height: 250px; overflow-y: auto; margin-bottom: 20px; padding-right: 5px; }
+        /* 滚动条美化 */
+        .log-area::-webkit-scrollbar { width: 4px; }
+        .log-area::-webkit-scrollbar-track { background: #1a1a1c; }
+        .log-area::-webkit-scrollbar-thumb { background: #444; border-radius: 2px; }
 
+        .hit { background: linear-gradient(90deg, #fff, #f0f0f0); color: #000; padding: 12px; border-radius: 10px; margin-bottom: 8px; font-weight: bold; font-size: 13px; border-left: 5px solid var(--red); box-shadow: 0 2px 10px rgba(255,255,255,0.1); }
+        .miss { color: #555; font-size: 12px; padding: 8px 0; border-bottom: 1px solid #222; display: flex; justify-content: space-between; }
+
+        /* 账单卡片 (无印章版) */
+        .bill-card { background: #000; padding: 25px; border-radius: 20px; border: 1px solid #333; margin-top: 10px; }
+        
         /* Apple Pay */
-        #apple-pay { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.9); z-index: 1000; align-items: center; justify-content: center; }
-        .sheet { background: #fff; color: #000; width: 85%; border-radius: 20px; padding: 25px; }
-        .pay-row { display: flex; justify-content: space-between; padding: 10px 0; border-bottom: 1px solid #f0f0f0; font-size: 14px; }
+        #apple-pay { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.92); z-index: 1000; align-items: center; justify-content: center; backdrop-filter: blur(5px); }
+        .sheet { background: #fff; color: #000; width: 85%; border-radius: 24px; padding: 30px 25px; box-shadow: 0 20px 50px rgba(0,0,0,0.5); }
+        .pay-row { display: flex; justify-content: space-between; padding: 12px 0; border-bottom: 1px solid #f5f5f5; font-size: 14px; color: #333; }
     </style>
 </head>
 <body>
 
 <div class="container">
     <div id="currency-screen">
-        <h2>Whoop 模拟器</h2>
-        <p style="color:#666; font-size:12px; margin-bottom:30px;">SETTLEMENT CURRENCY</p>
+        <h2 style="font-weight: 800; letter-spacing: -0.5px;">Whoop Simulator</h2>
+        <p style="color:#666; font-size:12px; margin-bottom:40px; text-transform: uppercase;">Select Settlement Currency</p>
         <button class="currency-btn" onclick="setCurrency('CNY', 0.048, '￥')">人民币 (CNY)</button>
         <button class="currency-btn" onclick="setCurrency('HKD', 0.052, 'HK$')">港币 (HKD)</button>
         <button class="currency-btn" onclick="setCurrency('TWD', 0.22, 'NT$')">新台币 (TWD)</button>
@@ -84,25 +81,24 @@
         </div>
 
         <div id="mem-area">
-            <label>Tap to Select Member</label>
             <div class="member-grid" id="memberGrid"></div>
         </div>
 
         <div class="input-box">
-            <label>购买张数 (0.72kg/ea)</label>
+            <label>购买数量 (0.72kg/EA)</label>
             <input type="number" id="qty" value="10" oninput="updatePre()">
         </div>
 
         <div class="ship-pre">
             <span>预估重量: <b id="pre-w">7.20</b> kg</span>
-            <span style="color:var(--red)">邮费: <span id="pre-cost">--</span></span>
+            <span>邮费: <span id="pre-cost">--</span></span>
         </div>
 
-        <button class="btn-pay" onclick="openPay()">确认支付 (PAY)</button>
+        <button class="btn-pay" onclick="openPay()">确认支付 (Apple Pay)</button>
     </div>
 
     <div id="results">
-        <h3 style="text-align:center; margin-top:0;">抽选报告</h3>
+        <h3 style="text-align:center; margin-top:0; font-size: 18px;">抽选结果</h3>
         
         <div id="roast-container"></div>
 
@@ -110,35 +106,53 @@
         
         <div class="bill-card" id="bill-content"></div>
         
-        <button class="btn-pay" style="margin-top:20px; background:#333;" onclick="location.reload()">清空重置</button>
+        <button class="btn-pay" style="margin-top:20px; background:#2c2c2e; color:#fff;" onclick="location.reload()">再试一次</button>
     </div>
 </div>
 
 <div id="apple-pay">
     <div class="sheet">
-        <div style="text-align:center; font-weight:bold; font-size:18px; margin-bottom:20px;"> Pay</div>
-        <div class="pay-row"><span>商户</span><span>Whoop JP Event</span></div>
-        <div class="pay-row"><span>模式</span><span id="p-mode"></span></div>
-        <div class="pay-row" style="border:none; padding-top:15px;">
-            <span style="font-weight:bold; font-size:16px;">总计</span>
-            <span style="font-size:24px; font-weight:bold; color:black;" id="p-total"></span>
+        <div style="text-align:center; font-weight:700; font-size:20px; margin-bottom:20px; font-family: -apple-system;"> Pay</div>
+        <div class="pay-row"><span>商户</span><span style="font-weight:600">Whoop Global Event</span></div>
+        <div class="pay-row"><span>项目</span><span id="p-mode"></span></div>
+        <div class="pay-row" style="border:none; padding-top:15px; align-items: center;">
+            <span style="font-weight:600; font-size:16px;">总计</span>
+            <span style="font-size:26px; font-weight:800; color:#000;" id="p-total"></span>
         </div>
-        <div style="width:50px; height:50px; border:2px solid #007aff; border-radius:50%; margin:20px auto; display:flex; align-items:center; justify-content:center; color:#007aff; font-size:24px; cursor:pointer;" onclick="startDraw()">Face ID</div>
-        <div style="text-align:center; color:#007aff; font-size:13px;" onclick="document.getElementById('apple-pay').style.display='none'">取消</div>
+        <div style="width:60px; height:60px; border:2.5px solid #007aff; border-radius:18px; margin:25px auto 10px; display:flex; align-items:center; justify-content:center; color:#007aff; font-size:28px; cursor:pointer; transition:0.2s;" onclick="startDraw()">☺︎</div>
+        <div style="text-align:center; color:#007aff; font-size:12px; margin-bottom: 5px;">Double Click to Pay</div>
+        <div style="text-align:center; color:#888; font-size:14px; cursor:pointer; margin-top: 15px;" onclick="document.getElementById('apple-pay').style.display='none'">取消</div>
     </div>
 </div>
 
 <script>
+    // ================= 配置区域 =================
+    // 建议替换为成员真实头像链接
+    const avatarLinks = {
+        "JACOB":    "https://i.pinimg.com/1200x/71/6a/2f/716a2f7c27835122e92b4bd944c07c81.jpg",
+        "YOUNGHOON":"https://i.pinimg.com/736x/f9/9d/87/f99d8708558e45c29ba23b2fccd895c0.jpg",
+        "HYUNJAE":  "https://i.pinimg.com/1200x/1f/65/13/1f65134928fa2f92303f385d3cab480f.jpg",
+        "JUYEON":   "https://i.pinimg.com/1200x/3a/d1/db/3ad1dbaa216feff5155d27a46a62cb3b.jpg",
+        "KEVIN":    "https://i.pinimg.com/1200x/8a/20/4b/8a204bcb4b5bd83450d6018a4a25bce5.jpg",
+        "NEW":      "https://i.pinimg.com/736x/77/2a/5e/772a5ebfffac25b2d05ef2f631ae2550.jpg",
+        "Q":        "https://i.pinimg.com/1200x/53/f5/fb/53f5fb9d511d19af866b6edfcb1d4de9.jpg",
+        "SUNWOO":   "https://i.pinimg.com/736x/51/f5/65/51f565e87a04391bb380a3d5581dcb50.jpg",
+        "ERIC":     "https://i.pinimg.com/1200x/12/5d/b9/125db94cea22b4303d3dfce34480b235.jpg"
+    };
+    // ===========================================
+
     let curRate = 0; let curSign = ""; 
     let mode = 'single'; 
     let selectedMember = "";
-    const members = ["JACOB", "YOUNGHOON", "HYUNJAE", "JUYEON", "KEVIN", "NEW", "Q", "SUNWOO", "ERIC"];
+    const members = Object.keys(avatarLinks);
+    
+    // 概率设定 (极低)
     const prizes = [
         { name: "双人合影", prob: 0.001 }, 
         { name: "个人签名", prob: 0.005 }, 
         { name: "个人手渡", prob: 0.015 }, 
-        { name: "拍手会",   prob: 0.035 }
-    ];
+        { name: "拍手会",   prob: 0.03  },
+         ];
 
     function setCurrency(c, r, s) {
         curRate = r; curSign = s;
@@ -151,7 +165,7 @@
         mode = m;
         document.getElementById('btn-single').className = m === 'single' ? 'mode-btn active' : 'mode-btn';
         document.getElementById('btn-all').className = m === 'all' ? 'mode-btn active' : 'mode-btn';
-        document.getElementById('mem-area').style.opacity = m === 'single' ? '1' : '0.3';
+        document.getElementById('mem-area').style.opacity = m === 'single' ? '1' : '0.4';
         document.getElementById('mem-area').style.pointerEvents = m === 'single' ? 'auto' : 'none';
     }
 
@@ -168,7 +182,7 @@
 
     function getCosts(q) {
         const w = q * 0.72;
-        // 邮费算法：首重3200 + 续重1100/kg
+        // 邮费：首重3200JPY，续重1100JPY/kg
         const s = q > 0 ? (3200 + Math.max(0, Math.ceil(w)-1) * 1100) : 0;
         const c = q * 3300;
         return { w: w, ship: s, cd: c, total: s+c };
@@ -185,8 +199,7 @@
         if(mode === 'single' && !selectedMember) return alert("请先选择成员！");
         const q = parseInt(document.getElementById('qty').value);
         const costs = getCosts(q);
-        
-        document.getElementById('p-mode').innerText = mode === 'single' ? `指定: ${selectedMember}` : "随机大混战";
+        document.getElementById('p-mode').innerText = mode === 'single' ? `指定: ${selectedMember}` : "全员混战";
         document.getElementById('p-total').innerText = `${curSign}${(costs.total * curRate).toLocaleString()}`;
         document.getElementById('apple-pay').style.display = 'flex';
     }
@@ -201,9 +214,8 @@
         const roast = document.getElementById('roast-container');
         log.innerHTML = "";
         roast.innerHTML = "";
+        
         let wins = 0;
-
-        // 抽奖逻辑
         for (let i = 1; i <= q; i++) {
             let rand = Math.random();
             let won = prizes.find(p => rand < p.prob);
@@ -211,26 +223,43 @@
                 wins++;
                 const m = mode === 'single' ? selectedMember : members[Math.floor(Math.random()*members.length)];
                 log.innerHTML += `<div class="hit">★ [${m}] ${won.name} 中选！</div>`;
-            } else if (q <= 20) { // 防止太多卡顿
-                log.innerHTML += `<div class="miss">第 ${i} 张：未中选</div>`;
+            } else if (q <= 30) {
+                log.innerHTML += `<div class="miss"><span>第 ${i} 张</span><span>未中选</span></div>`;
             }
         }
-        if(q > 20 && wins === 0) log.innerHTML = `<div style="text-align:center; padding:20px; color:#666;">惨烈... ${q} 张全挂</div>`;
+        if(q > 30 && wins === 0) log.innerHTML = `<div style="text-align:center; padding:15px; color:#555; font-size:12px;">... ${q} 张全挂 ...</div>`;
 
-        // ★ 核心功能：如果 0 中奖，触发成员吐槽
+        // ★ 核心：吐槽逻辑 (如果未中奖)
         if (wins === 0) {
-            const speaker = members[Math.floor(Math.random() * members.length)];
+            const speaker = mode === 'single' ? selectedMember : members[Math.floor(Math.random() * members.length)];
+            const imgUrl = avatarLinks[speaker];
+            
             roast.innerHTML = `
                 <div class="roast-bubble">
-                    <div class="avatar">${speaker[0]}</div>
+                    <img src="${imgUrl}" class="avatar-img" alt="${speaker}">
                     <div>
-                        <div class="bubble-name">${speaker} 发来一条消息:</div>
-                        <div class="bubble-content">“省点钱给自己买点好吃的吧，别赌了。”</div>
+                        <div class="bubble-name">${speaker} 发来语音:</div>
+                        <div class="bubble-content">“宝，${q} 张都打水漂了...<br>这钱留着去吃点好吃的吧”</div>
                     </div>
                 </div>
             `;
         }
 
+        // ★ 账单 (无印章)
+        const costs = getCosts(q);
+        document.getElementById('bill-content').innerHTML = `
+            <div style="display:flex; justify-content:space-between; margin-bottom:10px; font-size:13px; color:#aaa;">
+                <span>CD 费用</span><span>${curSign}${(costs.cd * curRate).toLocaleString()}</span>
+            </div>
+            <div style="display:flex; justify-content:space-between; margin-bottom:10px; font-size:13px; color:#aaa;">
+                <span>国际运费 (${costs.w.toFixed(1)}kg)</span><span>${curSign}${(costs.ship * curRate).toLocaleString()}</span>
+            </div>
+            <div style="border-top:1px solid #333; margin:15px 0;"></div>
+            <div style="display:flex; justify-content:space-between; font-size:20px; font-weight:800; color:var(--red);">
+                <span>实付金额</span><span>${curSign}${(costs.total * curRate).toLocaleString()}</span>
+            </div>
+        `;
+    }
 </script>
 </body>
 </html>
